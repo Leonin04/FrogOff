@@ -1,0 +1,53 @@
+\ProvidesPackage{estilo}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{tgheros} 
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{titlesec}
+\usepackage{geometry}
+\usepackage{listings}
+
+\definecolor{mainblue}{RGB}{0, 102, 204}
+\definecolor{darkgrey}{RGB}{30, 30, 30}
+
+\geometry{left=2.5cm, right=2.5cm, top=3cm, bottom=3cm}
+
+% --- PORTADA BLINDADA ---
+\newcommand{\portadaPro}[3]{
+    \begin{titlepage}
+        \begin{tikzpicture}[remember picture, overlay]
+            % Rectángulo gris oscuro arriba
+            \fill[darkgrey] (current page.north west) rectangle ([yshift=-10cm]current page.north east);
+            % Barra azul lateral
+            \fill[mainblue] (current page.north west) rectangle ([xshift=1.2cm]current page.south west);
+            
+            % El "3D" de fondo (opcional, lo bajé de escala para que no estorbe)
+            \node[anchor=north east, text=white, opacity=0.05, scale=10] at ([xshift=-1cm, yshift=-1cm]current page.north east) {3D};
+            
+            % TÍTULO (Posicionado manualmente sobre el gris)
+            \node[anchor=east, text=white] at ([xshift=-2cm, yshift=-4cm]current page.north east) {
+                \fontsize{25}{30}\selectfont \textbf{SISTEMAS GRÁFICOS}
+            };
+            
+            % SUBTÍTULO (Tu proyecto)
+            \node[anchor=east, text=mainblue] at ([xshift=-2cm, yshift=-6.5cm]current page.north east) {
+                \fontsize{40}{45}\selectfont \textbf{#1}
+            };
+            
+            % LÍNEA DECORATIVA
+            \draw[mainblue, line width=3pt] ([xshift=2cm, yshift=-7.5cm]current page.north west) -- ([xshift=-2cm, yshift=-7.5cm]current page.north east);
+
+            % INFO PIE (Autor y Fecha)
+            \node[anchor=south east, text=darkgrey] at ([xshift=-2cm, yshift=3cm]current page.south east) {
+                \Large \textbf{Autor:} #2
+            };
+            \node[anchor=south east, text=gray] at ([xshift=-2cm, yshift=2cm]current page.south east) {
+                \large #3
+            };
+        \end{tikzpicture}
+    \end{titlepage}
+}
