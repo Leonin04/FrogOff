@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { GUI } from 'gui'
 import { TrackballControls } from 'trackball'
 
-import { Mosca } from './Mosca.js'
+import { Mosca } from './Nenufar.js'
 
 
 /// La clase fachada del modelo

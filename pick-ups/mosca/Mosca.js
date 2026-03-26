@@ -11,7 +11,10 @@ class Mosca extends THREE.Object3D {
 
     this.createGUI(gui, titleGui);
 
-    this.material = new THREE.MeshStandardMaterial({ color: 0xCF0000 });
+    this.materialCuerpo = new THREE.MeshStandardMaterial({ color: 0x3A3A3A });
+    this.materialOjo = new THREE.MeshStandardMaterial({ color: 0xFF0000 });
+    this.materialAla = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+    this.materialPata = new THREE.MeshStandardMaterial({ color: 0x804000 });
 
     this.mosca = this.crearMosca();
 
@@ -38,7 +41,6 @@ class Mosca extends THREE.Object3D {
 
     this.crearCuerpo(mosca);
     this.crearCabeza(mosca);
-    this.crearAlas(mosca);
 
     return mosca;
   }
@@ -46,14 +48,12 @@ class Mosca extends THREE.Object3D {
   //Piernas por barrido
   crearCuerpo(mosca) {
 
-    var matCuerpo = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
-
     var cajaCentral = new THREE.Mesh(
-      new THREE.BoxGeometry(this.tama * 1.2, this.tama, this.tama), matCuerpo
+      new THREE.BoxGeometry(this.tama * 1.2, this.tama, this.tama), this.materialCuerpo
     );
 
     var cajaLateral1 = new THREE.Mesh(
-      new THREE.BoxGeometry(this.tama * 0.5, this.tama * 0.5, this.tama * 0.5), matCuerpo
+      new THREE.BoxGeometry(this.tama * 0.5, this.tama * 0.5, this.tama * 0.5), this.materialCuerpo
     );
 
     cajaCentral.position.set(0, 0, 0);
@@ -88,9 +88,7 @@ class Mosca extends THREE.Object3D {
 
     var geometryPata = new THREE.ExtrudeGeometry(shape, options);
 
-    var matPata = new THREE.MeshStandardMaterial({ color: 0x804000 });
-
-    var meshPata1 = new THREE.Mesh(geometryPata, matPata);
+    var meshPata1 = new THREE.Mesh(geometryPata, this.materialPata);
     meshPata1.position.set(2 * this.tama / 5, -this.tama / 2 - this.tama_pata, -this.tama / 2);
     mosca.add(meshPata1);
 
@@ -108,25 +106,73 @@ class Mosca extends THREE.Object3D {
     meshPata4.rotation.y = Math.PI;
     mosca.add(meshPata4);
 
+    var ala = this.crearAla();
+    var ala2 = this.crearAla();
+
+    ala.position.set(0, this.tama / 3, this.tama / 2);
+    ala2.position.set(0, this.tama / 3,-this.tama / 2);
+
+
+
+    mosca.add(ala);
+    mosca.add(ala2);
+
   }
 
   //Básico
   crearCabeza(mosca) {
     var tama_cabeza = this.tama * 0.7;
-
-    var matCabeza = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+    var tama_ojo = tama_cabeza / 3;
 
     var cabeza = new THREE.Mesh(
-      new THREE.BoxGeometry(tama_cabeza, tama_cabeza, tama_cabeza), matCabeza
+      new THREE.BoxGeometry(tama_cabeza, tama_cabeza, tama_cabeza), this.materialCuerpo
     );
 
-    cabeza.position.set(this.tama / 2 + tama_cabeza / 2, 0, 0);
+    cabeza.position.set(this.tama / 2 + tama_cabeza/2, 0, 0);
     mosca.add(cabeza);
+    
+    var ojo1 = new THREE.Mesh(
+      new THREE.BoxGeometry(tama_ojo, tama_ojo, tama_ojo/2), this.materialOjo);
+    
+    ojo1.position.set(tama_cabeza / 5, tama_cabeza / 4, tama_cabeza / 2);
+    cabeza.add(ojo1);
+
+    var ojo2 = ojo1.clone();
+    ojo2.position.set(tama_cabeza / 5, tama_cabeza / 4, -tama_cabeza / 2);
+    cabeza.add(ojo2);
   }
 
-  //Creadas con extrusión
-  crearAlas() {
+  //Extrusión
+  crearAla(){
+    var shape = new THREE.Shape();
+    shape.moveTo(0, 0);      
+    shape.lineTo(0.5, 0.2);  
 
+    shape.lineTo(1.5, 2.5);
+    shape.lineTo(2.5, 4.0);
+    shape.lineTo(3.5, 5.0);
+
+    shape.lineTo(5.0, 5.0);
+    shape.lineTo(5.5, 4.5);
+
+    shape.lineTo(5.0, 3.0);
+    shape.lineTo(4.0, 1.5);
+    shape.lineTo(2.0, 0.5);
+
+    shape.lineTo(0, 0);
+
+    var options1 = { depth : 1 , steps : 2 , bevelEnabled : false } ;
+
+    var geometryAla = new THREE.ExtrudeGeometry(shape, options1);
+    geometryAla.translate(0, 0, -0.5);
+    
+    var ala = new THREE.Mesh(geometryAla, this.materialAla);
+    
+    ala.scale.set(0.03, 0.03, 0.01);
+    ala.rotateOnAxis(new THREE.Vector3(0, 0, 1), 3*Math.PI / 4);
+
+
+    return ala;
   }
 
   setAngulo(valor) {
