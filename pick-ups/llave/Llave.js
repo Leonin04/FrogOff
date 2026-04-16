@@ -15,7 +15,15 @@ class Llave extends THREE.Object3D {
 
     this.llave = this.crearLlave();
 
+    this.cuerda = this.crearCuerda();
+
     this.add(this.llave);
+
+    this.cuerda.scale.set(0.1, 0.1, 0.1);
+    this.cuerda.rotateX(Math.PI / 2);
+    this.cuerda.position.set(-this.tama*0.7, 0, 0);
+
+    this.add(this.cuerda);
   }
 
   createGUI(gui, titleGui) {
@@ -80,7 +88,22 @@ class Llave extends THREE.Object3D {
   }
 
   crearCuerda(){
-    
+    const points = [];
+    const radio = 0.1; 
+    const segmentos = 16;
+
+    for (let i = 0; i <= segmentos; i++) {
+        const theta = (i / segmentos) * Math.PI * 2;
+        const x = 0.7 + radio * Math.cos(theta); 
+        const y = radio * Math.sin(theta);
+        points.push(new THREE.Vector2(x, y));
+    }
+
+    const geometry = new THREE.LatheGeometry(points, 32);
+    const material = new THREE.MeshStandardMaterial({ color: 0x905010, side: THREE.DoubleSide });
+    const lathe = new THREE.Mesh(geometry, material);
+
+    return lathe;
   }
 
 

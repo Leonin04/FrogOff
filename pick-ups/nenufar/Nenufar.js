@@ -8,7 +8,11 @@ class Nenufar extends THREE.Object3D {
     this.createGUI(gui, titleGui);
 
     this.materialBase = new THREE.MeshStandardMaterial({ color: 0x12a14b });
-    this.materialFlor = new THREE.MeshStandardMaterial({ color: 0xFF0000 });
+    this.materialFlor = new THREE.MeshStandardMaterial({
+        color: 0xff766c,
+        side: THREE.DoubleSide,
+        flatShading: true
+    });
 
     this.alto  = 0.5;
 
@@ -70,13 +74,8 @@ class Nenufar extends THREE.Object3D {
     ];
 
     const geometry = new THREE.LatheGeometry(points, 12);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0xff766c,
-        side: THREE.DoubleSide,
-        flatShading: true
-    });
 
-    const flor = new THREE.Mesh(geometry, material);
+    const flor = new THREE.Mesh(geometry, this.materialFlor);
 
     const matPalitos = new THREE.MeshStandardMaterial({ color: 0xfff932 });
 
