@@ -9,12 +9,20 @@ class Mosca extends THREE.Object3D {
 
     this.tama_pata = 0.03;
 
+    this.hecho = false;
+
+    this.ala1;
+    this.ala2;
+
     this.createGUI(gui, titleGui);
 
     this.materialCuerpo = new THREE.MeshStandardMaterial({ color: 0x3A3A3A });
     this.materialOjo = new THREE.MeshStandardMaterial({ color: 0xFF0000 });
     this.materialAla = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
     this.materialPata = new THREE.MeshStandardMaterial({ color: 0x804000 });
+
+    this.reloj = new THREE.Clock();
+    this.velocidad = 10;
 
     this.mosca = this.crearMosca();
 
@@ -24,16 +32,19 @@ class Mosca extends THREE.Object3D {
   createGUI(gui, titleGui) {
     // Controles para el movimiento de la parte móvil
     this.guiControls = {
-      rotacion: 0
+      animacionActiva: false,
+    
+    // Esta función se convertirá en un botón en la interfaz
+      comenzarAnimacion: () => {
+        this.guiControls.animacionActiva = !this.guiControls.animacionActiva;
+        console.log("Animación: " + (this.guiControls.animacionActiva ? "ON" : "OFF"));
+      }
     }
 
-    // Se crea una sección para los controles de la caja
     var folder = gui.addFolder(titleGui);
-    // Estas lineas son las que añaden los componentes de la interfaz
-    // Las tres cifras indican un valor mínimo, un máximo y el incremento
-    folder.add(this.guiControls, 'rotacion', -0.125, 0.2, 0.001)
-      .name('Apertura : ')
-      .onChange((value) => this.setAngulo(-value));
+
+    folder.add(this.guiControls, 'comenzarAnimacion')
+    .name('Play / Pause');
   }
 
   crearMosca() {
@@ -59,8 +70,6 @@ class Mosca extends THREE.Object3D {
     cajaCentral.position.set(0, 0, 0);
 
     cajaLateral1.position.set(-cajaCentral.geometry.parameters.width / 2 - cajaLateral1.geometry.parameters.width / 2, 0, 0);
-
-    mosca.rotation.z = this.guiControls.rotacion;
 
     mosca.add(cajaCentral);
     mosca.add(cajaLateral1);
@@ -106,16 +115,16 @@ class Mosca extends THREE.Object3D {
     meshPata4.rotation.y = Math.PI;
     mosca.add(meshPata4);
 
-    var ala = this.crearAla();
-    var ala2 = this.crearAla();
+    this.ala = this.crearAla();
+    this.ala2 = this.crearAla();
 
-    ala.position.set(0, this.tama / 3, this.tama / 2);
-    ala2.position.set(0, this.tama / 3,-this.tama / 2);
+    this.ala.position.set(0, this.tama / 3, this.tama / 2);
+    this.ala2.position.set(0, this.tama / 3,-this.tama / 2);
 
 
 
-    mosca.add(ala);
-    mosca.add(ala2);
+    mosca.add(this.ala);
+    mosca.add(this.ala2);
 
   }
 
@@ -175,12 +184,51 @@ class Mosca extends THREE.Object3D {
     return ala;
   }
 
-  setAngulo(valor) {
-    this.cuerpo.rotation.z = valor;
+  update() {
+  
+  var segundos = this.reloj.getDelta();
+  
+  let suavidad = 5 * segundos;
+
+  let suavidad2 = segundos;
+
+  let targetX, targetZ, targetX2, targetY, targetY2;
+
+  if (this.guiControls.animacionActiva) {
+    let tiempo = this.reloj.getElapsedTime() * this.velocidad;
+    let oscilacion = Math.sin(tiempo) * 5;
+
+    targetX = THREE.MathUtils.degToRad(70);
+    targetX2 = THREE.MathUtils.degToRad(-70); 
+    targetZ = THREE.MathUtils.degToRad(100);
+    targetY = THREE.MathUtils.degToRad(-40) - oscilacion;
+    targetY2 = THREE.MathUtils.degToRad(40) + oscilacion;
+  } else {
+    targetX = 0;
+    targetX2 = 0;
+    targetZ = 3 * Math.PI / 4;
+    this.hecho = false;
   }
 
-  update() {
+  if (this.ala && this.ala2) {
+    this.ala.rotation.x = THREE.MathUtils.lerp(this.ala.rotation.x, targetX, suavidad);
+    this.ala.rotation.z = THREE.MathUtils.lerp(this.ala.rotation.z, targetZ, suavidad);
+    this.ala2.rotation.x = THREE.MathUtils.lerp(this.ala2.rotation.x, targetX2, suavidad);
+    this.ala2.rotation.z = THREE.MathUtils.lerp(this.ala2.rotation.z, targetZ, suavidad);
+
+    if (Math.abs(this.ala.rotation.x - targetX) < 0.01) {
+      this.hecho = true;
+    }
+
+    if (this.hecho && this.guiControls.animacionActiva) {
+      this.ala.rotation.y = THREE.MathUtils.lerp(this.ala.rotation.y, targetY, suavidad2);
+      this.ala2.rotation.y = THREE.MathUtils.lerp(this.ala2.rotation.y, targetY2, suavidad2);
+    } else {
+      this.ala.rotation.y = THREE.MathUtils.lerp(this.ala.rotation.y, 0, suavidad);
+      this.ala2.rotation.y = THREE.MathUtils.lerp(this.ala2.rotation.y, 0, suavidad);
+    }
   }
+}
 }
 
 export { Mosca }
