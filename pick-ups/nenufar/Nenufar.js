@@ -5,7 +5,9 @@ class Nenufar extends THREE.Object3D {
   constructor(gui, titleGui) {
     super();
 
-    this.createGUI(gui, titleGui);
+    if (gui) {
+      this.createGUI(gui, titleGui);
+    }
 
     this.materialBase = new THREE.MeshStandardMaterial({ color: 0x12a14b });
     this.materialFlor = new THREE.MeshStandardMaterial({

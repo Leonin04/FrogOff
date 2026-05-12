@@ -14,7 +14,11 @@ class Mosca extends THREE.Object3D {
     this.ala1;
     this.ala2;
 
-    this.createGUI(gui, titleGui);
+    if (gui) {
+      this.createGUI(gui, titleGui);
+    } else {
+      this.guiControls = { animacionActiva: true };
+    }
 
     this.materialCuerpo = new THREE.MeshStandardMaterial({ color: 0x3A3A3A });
     this.materialOjo = new THREE.MeshStandardMaterial({ color: 0xFF0000 });
@@ -32,9 +36,9 @@ class Mosca extends THREE.Object3D {
   createGUI(gui, titleGui) {
     // Controles para el movimiento de la parte móvil
     this.guiControls = {
-      animacionActiva: false,
-    
-    // Esta función se convertirá en un botón en la interfaz
+      animacionActiva: true,
+
+      // Esta función se convertirá en un botón en la interfaz
       comenzarAnimacion: () => {
         this.guiControls.animacionActiva = !this.guiControls.animacionActiva;
         console.log("Animación: " + (this.guiControls.animacionActiva ? "ON" : "OFF"));
@@ -44,7 +48,7 @@ class Mosca extends THREE.Object3D {
     var folder = gui.addFolder(titleGui);
 
     folder.add(this.guiControls, 'comenzarAnimacion')
-    .name('Play / Pause');
+      .name('Play / Pause');
   }
 
   crearMosca() {
@@ -119,7 +123,7 @@ class Mosca extends THREE.Object3D {
     this.ala2 = this.crearAla();
 
     this.ala.position.set(0, this.tama / 3, this.tama / 2);
-    this.ala2.position.set(0, this.tama / 3,-this.tama / 2);
+    this.ala2.position.set(0, this.tama / 3, -this.tama / 2);
 
 
 
@@ -137,12 +141,12 @@ class Mosca extends THREE.Object3D {
       new THREE.BoxGeometry(tama_cabeza, tama_cabeza, tama_cabeza), this.materialCuerpo
     );
 
-    cabeza.position.set(this.tama / 2 + tama_cabeza/2, 0, 0);
+    cabeza.position.set(this.tama / 2 + tama_cabeza / 2, 0, 0);
     mosca.add(cabeza);
-    
+
     var ojo1 = new THREE.Mesh(
-      new THREE.BoxGeometry(tama_ojo, tama_ojo, tama_ojo/2), this.materialOjo);
-    
+      new THREE.BoxGeometry(tama_ojo, tama_ojo, tama_ojo / 2), this.materialOjo);
+
     ojo1.position.set(tama_cabeza / 5, tama_cabeza / 4, tama_cabeza / 2);
     cabeza.add(ojo1);
 
@@ -152,10 +156,10 @@ class Mosca extends THREE.Object3D {
   }
 
   //Extrusión
-  crearAla(){
+  crearAla() {
     var shape = new THREE.Shape();
-    shape.moveTo(0, 0);      
-    shape.lineTo(0.5, 0.2);  
+    shape.moveTo(0, 0);
+    shape.lineTo(0.5, 0.2);
 
     shape.lineTo(1.5, 2.5);
     shape.lineTo(2.5, 4.0);
@@ -170,65 +174,73 @@ class Mosca extends THREE.Object3D {
 
     shape.lineTo(0, 0);
 
-    var options1 = { depth : 1 , steps : 2 , bevelEnabled : false } ;
+    var options1 = { depth: 1, steps: 2, bevelEnabled: false };
 
     var geometryAla = new THREE.ExtrudeGeometry(shape, options1);
     geometryAla.translate(0, 0, -0.5);
-    
+
     var ala = new THREE.Mesh(geometryAla, this.materialAla);
-    
+
     ala.scale.set(0.03, 0.03, 0.01);
-    ala.rotateOnAxis(new THREE.Vector3(0, 0, 1), 3*Math.PI / 4);
+    ala.rotateOnAxis(new THREE.Vector3(0, 0, 1), 3 * Math.PI / 4);
 
 
     return ala;
   }
 
   update() {
-  
-  var segundos = this.reloj.getDelta();
-  
-  let suavidad = 5 * segundos;
 
-  let suavidad2 = segundos;
+    var segundos = this.reloj.getDelta();
 
-  let targetX, targetZ, targetX2, targetY, targetY2;
-
-  if (this.guiControls.animacionActiva) {
-    let tiempo = this.reloj.getElapsedTime() * this.velocidad;
-    let oscilacion = Math.sin(tiempo) * 5;
-
-    targetX = THREE.MathUtils.degToRad(70);
-    targetX2 = THREE.MathUtils.degToRad(-70); 
-    targetZ = THREE.MathUtils.degToRad(100);
-    targetY = THREE.MathUtils.degToRad(-40) - oscilacion;
-    targetY2 = THREE.MathUtils.degToRad(40) + oscilacion;
-  } else {
-    targetX = 0;
-    targetX2 = 0;
-    targetZ = 3 * Math.PI / 4;
-    this.hecho = false;
-  }
-
-  if (this.ala && this.ala2) {
-    this.ala.rotation.x = THREE.MathUtils.lerp(this.ala.rotation.x, targetX, suavidad);
-    this.ala.rotation.z = THREE.MathUtils.lerp(this.ala.rotation.z, targetZ, suavidad);
-    this.ala2.rotation.x = THREE.MathUtils.lerp(this.ala2.rotation.x, targetX2, suavidad);
-    this.ala2.rotation.z = THREE.MathUtils.lerp(this.ala2.rotation.z, targetZ, suavidad);
-
-    if (Math.abs(this.ala.rotation.x - targetX) < 0.01) {
-      this.hecho = true;
-    }
-
-    if (this.hecho && this.guiControls.animacionActiva) {
-      this.ala.rotation.y = THREE.MathUtils.lerp(this.ala.rotation.y, targetY, suavidad2);
-      this.ala2.rotation.y = THREE.MathUtils.lerp(this.ala2.rotation.y, targetY2, suavidad2);
+    // Ciclo de 6 segundos: 5 de animación, 1 de pausa
+    let tiempoTotal = this.reloj.getElapsedTime();
+    if (tiempoTotal % 6.0 < 5.0) {
+      this.guiControls.animacionActiva = true;
     } else {
-      this.ala.rotation.y = THREE.MathUtils.lerp(this.ala.rotation.y, 0, suavidad);
-      this.ala2.rotation.y = THREE.MathUtils.lerp(this.ala2.rotation.y, 0, suavidad);
+      this.guiControls.animacionActiva = false;
+    }
+
+    let suavidad = 5 * segundos;
+
+    let suavidad2 = segundos;
+
+    let targetX, targetZ, targetX2, targetY, targetY2;
+
+    if (this.guiControls.animacionActiva) {
+      let tiempo = this.reloj.getElapsedTime() * this.velocidad;
+      let oscilacion = Math.sin(tiempo) * 5;
+
+      targetX = THREE.MathUtils.degToRad(70);
+      targetX2 = THREE.MathUtils.degToRad(-70);
+      targetZ = THREE.MathUtils.degToRad(100);
+      targetY = THREE.MathUtils.degToRad(-40) - oscilacion;
+      targetY2 = THREE.MathUtils.degToRad(40) + oscilacion;
+    } else {
+      targetX = 0;
+      targetX2 = 0;
+      targetZ = 3 * Math.PI / 4;
+      this.hecho = false;
+    }
+
+    if (this.ala && this.ala2) {
+      this.ala.rotation.x = THREE.MathUtils.lerp(this.ala.rotation.x, targetX, suavidad);
+      this.ala.rotation.z = THREE.MathUtils.lerp(this.ala.rotation.z, targetZ, suavidad);
+      this.ala2.rotation.x = THREE.MathUtils.lerp(this.ala2.rotation.x, targetX2, suavidad);
+      this.ala2.rotation.z = THREE.MathUtils.lerp(this.ala2.rotation.z, targetZ, suavidad);
+
+      if (Math.abs(this.ala.rotation.x - targetX) < 0.01) {
+        this.hecho = true;
+      }
+
+      if (this.hecho && this.guiControls.animacionActiva) {
+        this.ala.rotation.y = THREE.MathUtils.lerp(this.ala.rotation.y, targetY, suavidad2);
+        this.ala2.rotation.y = THREE.MathUtils.lerp(this.ala2.rotation.y, targetY2, suavidad2);
+      } else {
+        this.ala.rotation.y = THREE.MathUtils.lerp(this.ala.rotation.y, 0, suavidad);
+        this.ala2.rotation.y = THREE.MathUtils.lerp(this.ala2.rotation.y, 0, suavidad);
+      }
     }
   }
-}
 }
 
 export { Mosca }

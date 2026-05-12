@@ -11,7 +11,9 @@ class Llave extends THREE.Object3D {
 
     this.matLlave = new THREE.MeshStandardMaterial({ color: 0xF2CB3F });
 
-    this.createGUI(gui, titleGui);
+    if (gui) {
+      this.createGUI(gui, titleGui);
+    }
 
     this.llave = this.crearLlave();
 
