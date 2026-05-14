@@ -117,11 +117,12 @@ class MyScene extends THREE.Scene {
 
     this.cameraControl = new PointerLockControls(this.camera, this.renderer.domElement);
 
-    document.addEventListener('click', () => {
+    document.addEventListener('click', (event) => {
       if (!this.cameraControl.isLocked) {
-        this.cameraControl.lock();
-      } else {
-        this.checkPickupClick();
+        const picked = this.checkPickupClick(event);
+        if (!picked) {
+          this.cameraControl.lock();
+        }
       }
     });
 
@@ -369,12 +370,17 @@ class MyScene extends THREE.Scene {
     requestAnimationFrame(() => this.update())
   }
 
-  checkPickupClick() {
-    if (!this.pickUps || this.pickUps.length === 0) return;
+  checkPickupClick(event) {
+    if (!this.pickUps || this.pickUps.length === 0) return false;
 
-    // Lanzar un rayo desde el centro de la cámara
+    // Calcular la posición del cursor en coordenadas de dispositivo normalizadas (NDC) de -1 a +1
+    const mouse = new THREE.Vector2();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = 1 - (event.clientY / window.innerHeight) * 2;
+
+    // Lanzar un rayo desde el cursor
     const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
+    raycaster.setFromCamera(mouse, this.camera);
 
     // Distancia máxima a la que podemos coger el objeto 
     raycaster.far = 1.5;
@@ -402,8 +408,11 @@ class MyScene extends THREE.Scene {
         else if (object instanceof Bota) this.bota_picked = true;
         else if (object instanceof Nenufar) this.nenufar_picked = true;
 
+        return true;
       }
     }
+
+    return false;
   }
 }
 

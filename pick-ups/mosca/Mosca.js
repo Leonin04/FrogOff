@@ -46,9 +46,6 @@ class Mosca extends THREE.Object3D {
     }
 
     var folder = gui.addFolder(titleGui);
-
-    folder.add(this.guiControls, 'comenzarAnimacion')
-      .name('Play / Pause');
   }
 
   crearMosca() {
