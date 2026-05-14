@@ -13,6 +13,7 @@ import { Mosca } from '../pick-ups/mosca/Mosca.js'
 import { Llave } from '../pick-ups/llave/Llave.js'
 import { Bota } from '../pick-ups/bota/Bota.js'
 import { Nenufar } from '../pick-ups/nenufar/Nenufar.js'
+import { Trampilla } from '../models/trampilla/Trampilla.js'
 
 
 /// La clase fachada del modelo
@@ -98,6 +99,7 @@ class MyScene extends THREE.Scene {
 
       // 4. Nenufar 
       colocar(Laberinto.NENUFAR, new Nenufar(null, "Nenufar"), 0.1); // A ras de suelo
+
 
       // Jugador
       if (this.laberinto.posiciones[Laberinto.PLAYER]) {
@@ -332,7 +334,7 @@ class MyScene extends THREE.Scene {
 
         if (movX.length() > 0.0001) {
           this.raycaster.set(posAntesX, movX.normalize());
-          this.raycaster.far = movX.length() + radioJugador;
+          this.raycaster.far = movX.length() + radioJugador/2;
           // Comprobar colisión solo contra los bloques invisibles del laberinto
           const intersectsX = this.raycaster.intersectObjects(this.laberinto.children, true);
           if (intersectsX.length > 0) {
@@ -350,7 +352,7 @@ class MyScene extends THREE.Scene {
 
         if (movZ.length() > 0.0001) {
           this.raycaster.set(posAntesZ, movZ.normalize());
-          this.raycaster.far = movZ.length() + radioJugador; // Limitamos el rayo también aquí
+          this.raycaster.far = movZ.length() + radioJugador; 
           const intersectsZ = this.raycaster.intersectObjects(this.laberinto.children, true);
           if (intersectsZ.length > 0) {
             this.camera.position.copy(posAntesZ);

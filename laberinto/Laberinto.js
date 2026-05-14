@@ -9,6 +9,7 @@ class Laberinto extends THREE.Object3D {
   static NENUFAR = "N";
   static LLAVE = "L";
   static BOTA = "B";
+  static TRAMPILLA = "F";
 
   constructor(archivo, sincronizacion = null) {
     super();
@@ -51,6 +52,7 @@ class Laberinto extends THREE.Object3D {
             case Laberinto.NENUFAR:
             case Laberinto.LLAVE:
             case Laberinto.BOTA:
+            case Laberinto.TRAMPILLA:
               // Guardamos la celda para que MyScene sepa dónde poner al jugador y los items
               this.posiciones[char] = { fila, columna };
               break;
